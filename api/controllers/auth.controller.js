@@ -121,8 +121,8 @@ export const signin = async (req, res, next) => {
     }
 };
 
-export const signout = async (req, res, next) => {
-    res.clearCookie("access-token").status(200).json({ success: true, message: "User signed out successfully" });
+export const signout = async (req, res) => {
+    res.clearCookie("access_token").status(200).json({ success: true, message: "User signed out successfully" });
 };
 
 export const forgotPassword = async (req, res) => {
@@ -163,7 +163,7 @@ export const resetPassword = async (req, res) => {
             resetPasswordExpiresAt: { $gt: Date.now() },
         });
 
-        if(!user){
+        if (!user) {
             return res.status(400).json({ success: false, message: "Invalid or expired reset token" });
         }
 
@@ -182,6 +182,19 @@ export const resetPassword = async (req, res) => {
 
     } catch (error) {
         console.error('Error in password reset', error);
-        res.status(500).json({success: false, message: 'Server Error'});
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+export const checkAuth = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId).select("-password");
+        if (!user) return res.status(400).json({ success: false, message: "User not found" });
+
+        res.status(200).json({ success: true, user });
+
+    } catch (error) {
+        console.error("Error in checkAuth", error);
+        res.status(400).json({ success: false, message: error.message });
     }
 };
