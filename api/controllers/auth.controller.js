@@ -138,8 +138,8 @@ export const forgotPassword = async (req, res) => {
         // Generate reset token and send it to user's email        
         const resetToken = crypto.randomBytes(32).toString('hex');
 
-        user.resetToken = resetToken;
-        user.resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hours       
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hours       
 
         await user.save();
 
