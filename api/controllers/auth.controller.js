@@ -1,7 +1,9 @@
 import bcryptjs from "bcryptjs";
+import crypto from 'crypto';
+
 import User from "../models/user.model.js";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
-import { sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/emails.js";
+import { sendResetPasswordEmail, sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/emails.js";
 
 export const signup = async (req, res, next) => {
     const { email, password, name } = req.body;
@@ -78,14 +80,77 @@ export const verifyEmail = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({ success: false, message: "Server error"});
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
 export const signin = async (req, res, next) => {
-    res.send("signin Controller");
+    const { email, password } = req.body;
+    try {
+        if (!email || !password) {
+            throw new Error("All fields are required");
+        }
+        const user = await User.findOne({ email });
+        if (!user) {
+            res.status(400).json({ success: false, message: "Invalid credentials" });
+            return;
+        };
+        const isMatch = bcryptjs.compareSync(password, user.password);
+        if (!isMatch) {
+            res.status(400).json({ success: false, message: "Invalid credentials" });
+            return;
+        };
+        if (!user.isVerified) {
+            res.status(401).json({ success: false, message: "Email not verified" });
+            return;
+        };
+        generateTokenAndSetCookie(res, user._id);
+
+        user.lastLogin = Date.now();
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "User signed in successfully",
+            user: { ...user._doc, password: undefined }
+        });
+    } catch (error) {
+        console.log("Error in signin", error);
+        res.status(400).json({ success: false, message: error.message });
+    }
 };
 
 export const signout = async (req, res, next) => {
     res.clearCookie("access-token").status(200).json({ success: true, message: "User signed out successfully" });
 };
+
+export const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if(!user) {
+            res.status(400).json({ success: false, message: "User not found" });
+            return;
+        };
+
+        // Generate reset token and send it to user's email        
+        const resetToken = crypto.randomBytes(32).toString('hex');
+
+        user.resetToken = resetToken;
+        user.resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hours       
+
+        await user.save();
+
+        // Send reset password link to user's email
+        await sendResetPasswordEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`);
+
+        res.status(200).json({ success: true, message: "Reset password link sent to your email" });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+        
+   
