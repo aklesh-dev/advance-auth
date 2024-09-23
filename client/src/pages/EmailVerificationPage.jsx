@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useAuthStore } from '../store/authStore';
+import toast from 'react-hot-toast';
+import { Loader } from 'lucide-react';
 
 export default function EmailVerificationPage() {
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
-  const isLoading = false;
+  
+  const { isLoading, error, verifyEmail } = useAuthStore();
 
   const handleChange = (index, value) => {
     const newcode = [...code];
@@ -40,10 +44,16 @@ export default function EmailVerificationPage() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const verificationCode = code.join("");
-    console.log(`Verification code submitted: ${verificationCode}`);
+    try {
+      await verifyEmail(verificationCode);
+      navigate("/");
+      toast.success("Email verified successfully");
+    } catch (error) {
+      console.log("Error verifying email", error.message);
+    }
     
   };
 
@@ -81,6 +91,8 @@ export default function EmailVerificationPage() {
             ))}
           </div>
 
+          { error && <p className="text-red-500 text-center font-semibold mt-2">{error}</p> }          
+          
           <motion.button
             className="mt-5 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-500 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200 uppercase"
             whileHover={{ scale: 1.02 }}
