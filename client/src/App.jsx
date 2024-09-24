@@ -2,8 +2,9 @@ import { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-import FloatingShape from "./components/FloatingShape";
 import { useAuthStore } from "./store/authStore";
+import FloatingShape from "./components/FloatingShape";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 import SignUpPage from "./pages/SignupPage";
 import SignInPage from "./pages/SignInPage";
@@ -42,6 +43,8 @@ function App() {
   useEffect(() => {
     checkAuth()
   }, [checkAuth]);
+
+  if (isCheckingAuth) return <LoadingSpinner />
 
   
   return (
