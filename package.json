@@ -2,11 +2,11 @@
   "name": "advance-auth",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "api/index.js",
   "type": "module",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon api/index.js",
-    "start": "NODE_ENV=production node api/index.js",
+    "dev": " nodemon api/index.js",
+    "start": " node api/index.js",
     "build": "npm install && npm install --prefix client && npm run build --prefix client"
   },
   "keywords": [],
