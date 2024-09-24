@@ -10,6 +10,7 @@ import SignUpPage from "./pages/SignupPage";
 import SignInPage from "./pages/SignInPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
 import HomePage from "./pages/HomePage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 // protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
@@ -23,7 +24,7 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/verify-email" replace />;
   }
 
-  return children; 
+  return children;
 };
 
 // redirect authorized user to homepage
@@ -34,7 +35,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
     return <Navigate to="/" replace />
   }
 
-  return children; 
+  return children;
 };
 
 function App() {
@@ -46,7 +47,7 @@ function App() {
 
   if (isCheckingAuth) return <LoadingSpinner />
 
-  
+
   return (
     <section className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 
     flex items-center justify-center relative overflow-hidden">
@@ -78,6 +79,15 @@ function App() {
           }
         />
         <Route path="/verify-email" element={<EmailVerificationPage />} />
+
+        <Route path="/forgot-password"
+          element={
+            <RedirectAuthenticatedUser>
+              <ForgotPasswordPage />
+            </RedirectAuthenticatedUser>
+          }
+        />
+        
       </Routes>
       <Toaster />
 
