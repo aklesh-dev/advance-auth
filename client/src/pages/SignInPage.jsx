@@ -3,15 +3,17 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Mail, Lock, Loader } from "lucide-react";
 import Input from '../components/Input';
+import { useAuthStore } from '../store/authStore';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const isLoading = false;
+  const { isLoading, login, error } = useAuthStore();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    await login(email, password);
   };
 
   return (
@@ -46,6 +48,8 @@ export default function SignInPage() {
                 Forget Password?
               </Link>
             </div>
+
+            {error && <p className='text-red-500 font-semibold mb-2'>{error}</p>}
 
             <motion.button
               className="mt-5 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-500 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200 uppercase"
