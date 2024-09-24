@@ -98,6 +98,9 @@ function App() {
           }
         />
 
+        {/* --show 404 page || catch all routes -- */}
+        <Route path="*" element={<h1>Page not found</h1>} />
+
       </Routes>
       <Toaster />
 
