@@ -23,11 +23,13 @@ app.use(cookieParser()); // allows us to parse cookies in request headers
 app.use('/api/auth', authRoutes);
 
 // ------------------ Serve React App ------------------
-if(process.env.NODE_ENV === 'production'){
-    app.use(express.static(path.join(__dirname, 'client/dist')));
+if (process.env.NODE_ENV === 'production') {
+    // Serve static files from the client directory (which contains index.html)
+    app.use(express.static(path.join(__dirname, '/client/dist')));
 
-    app.get("*",(req, res) => {
-        res.sendFile(path.resolve(__dirname, 'client', 'dist', 'index.html'));
+    // Handle all other routes by sending the index.html file
+    app.get("*", (req, res) => {
+        res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
     });
 };
 
